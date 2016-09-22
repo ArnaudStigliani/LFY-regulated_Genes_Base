@@ -1,12 +1,11 @@
 shinyServer(function(input, output) {
+  
+  ####################################
+  #### when the user select a dataset in the data directory (input$dataset)
   datasetInput <- reactive({
     inFile2 <- paste("data/", input$dataset, sep = "", ".csv") 
     read.csv(inFile2, header = TRUE, sep = ";", quote = '"')
   })
-  
-  output$table <- DT::renderDataTable(DT::datatable({
-    datasetInputModif()
-  }))
   
   datasetInputModif <- reactive({
     data<-datasetInput()
@@ -22,10 +21,15 @@ shinyServer(function(input, output) {
     data
   })
   
+  output$table <- DT::renderDataTable(DT::datatable({
+    datasetInputModif()
+  }))
+  
   output$downloadData <- downloadHandler(
     filename = function() { paste(input$dataset, '.csv', sep='') },
     content = function(file) {
-      write.csv(datasetInputModif(), file)
+      write.table(datasetInputModif(), file, row.names = FALSE,sep = ";")
+      #write.csv(datasetInputModif(), file,sep = ";")
     }
   )
 

@@ -1,11 +1,12 @@
 shinyUI(pageWithSidebar(
-  headerPanel('Download Example'),
+  headerPanel('CSV Filtering Tool'),
 
   sidebarPanel(
     selectInput("dataset", "Choose a dataset:", 
                 choices = c("william_2003", "Winter_2014_Winter_seedling")),
     downloadButton('downloadData', 'Download')
   ),
+  
   mainPanel(
     fluidRow(
       column(4,
