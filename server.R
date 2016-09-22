@@ -5,6 +5,10 @@ shinyServer(function(input, output) {
   })
   
   output$table <- DT::renderDataTable(DT::datatable({
+    datasetInputModif()
+  }))
+  
+  datasetInputModif <- reactive({
     data<-datasetInput()
     if (input$panel1 != "All") {
       data <- data[data$Functional.category == input$panel1,]
@@ -16,12 +20,12 @@ shinyServer(function(input, output) {
       data <- data[data$DC.C == input$panel3,]
     }
     data
-  }))
+  })
   
   output$downloadData <- downloadHandler(
     filename = function() { paste(input$dataset, '.csv', sep='') },
     content = function(file) {
-      write.csv(datasetInput(), file)
+      write.csv(datasetInputModif(), file)
     }
   )
 
