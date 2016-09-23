@@ -14,14 +14,13 @@ shinyServer(function(input, output) {
     if (input$panel1 != "All") {
       data <- data[data$Functional.category == input$panel1,]
     }
-    if (input$panel2 != "All" & input$panel2 != "") {
+
       data <- data[data$D.M >= input$panel2[1],]
       data <- data[data$D.M < input$panel2[2],]
-    }
-    if (input$panel3 != "All" & input$panel3 != "") {
+   
       data <- data[data$DC.C >= input$panel3[1],]
       data <- data[data$DC.C < input$panel3[2],]
-    }
+    
     data
   })
   
