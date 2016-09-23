@@ -16,16 +16,14 @@ shinyUI(pageWithSidebar(
                            "Signaling","Transcription","Protein modification","Sugar/amino acid biosynthesis"	 ))
       ),
       column(4,
-             selectInput("panel2",
+             sliderInput("panel2",
                          textOutput("column5_head"),
-                         c("All",
-                           4,3,2.5 ))
+                         0, 50, c(0,50))
       ),
       column(4,
-             selectInput("panel3",
+             sliderInput("panel3",
                          textOutput("column6_head"),
-                         c("All",
-                         2,2.5,3))
+                         0, 40, c(0,40))
       )
     ),
     DT::dataTableOutput("table")

@@ -1,22 +1,26 @@
 shinyServer(function(input, output) {
   
   ####################################
-  #### when the user select a dataset in the data directory (input$dataset)
+  #### when the user selects a dataset in the data directory (input$dataset)
   datasetInput <- reactive({
     inFile2 <- paste("data/", input$dataset, sep = "", ".csv") 
     read.csv(inFile2, header = TRUE, sep = ";", quote = '"')
   })
   
+  ####################################
+  #### when the user does multiple filters ont the table
   datasetInputModif <- reactive({
     data<-datasetInput()
     if (input$panel1 != "All") {
       data <- data[data$Functional.category == input$panel1,]
     }
-    if (input$panel2 != "All") {
-      data <- data[data$D.M == input$panel2,]
+    if (input$panel2 != "All" & input$panel2 != "") {
+      data <- data[data$D.M >= input$panel2[1],]
+      data <- data[data$D.M < input$panel2[2],]
     }
-    if (input$panel3 != "All") {
-      data <- data[data$DC.C == input$panel3,]
+    if (input$panel3 != "All" & input$panel3 != "") {
+      data <- data[data$DC.C >= input$panel3[1],]
+      data <- data[data$DC.C < input$panel3[2],]
     }
     data
   })
@@ -29,11 +33,9 @@ shinyServer(function(input, output) {
     filename = function() { paste(input$dataset, '.csv', sep='') },
     content = function(file) {
       write.table(datasetInputModif(), file, row.names = FALSE,sep = ";")
-      #write.csv(datasetInputModif(), file,sep = ";")
     }
   )
 
-  
   output$column4_head <- renderText({
     names(datasetInput())[4]
   })
