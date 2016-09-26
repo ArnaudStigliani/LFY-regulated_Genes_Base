@@ -1,9 +1,11 @@
+fileNames<-dir("data/", pattern =".csv")
+
 shinyUI(pageWithSidebar(
   headerPanel('CSV Filtering Tool'),
-
+  
   sidebarPanel(
     selectInput("dataset", "Choose a dataset:", 
-                choices = c("william_2003", "Winter_2014_Winter_seedling")),
+                fileNames ),
     downloadButton('downloadData', 'Download')
   ),
   
