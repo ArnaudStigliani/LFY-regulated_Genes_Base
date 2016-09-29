@@ -13,20 +13,21 @@ shinyUI(pageWithSidebar(
     fluidRow(
       column(4,
              selectInput("panel1",
-                         textOutput("column4_head"),
+                         textOutput("column1_head"),
                          c("All",
-                           "Signaling","Transcription","Protein modification","Sugar/amino acid biosynthesis"	 ))
-      ),
-      column(4,
-             sliderInput("panel2",
-                         textOutput("column5_head"),
-                         0, 50, c(0,50))
-      ),
-      column(4,
-             sliderInput("panel3",
-                         textOutput("column6_head"),
-                         0, 40, c(0,40))
+                           "LFY-GR_vs_WT_GSE28062","Model2","Model3","Model4"	 ))
       )
+      , column(4, uiOutput("slider") )
+      # , column(4,
+      #         sliderInput("panel2",
+      #                     textOutput("column8_head"),
+      #                     0, 50, c(0,50))
+      # )
+      #, column(4,
+      #        sliderInput("panel3",
+      #                    textOutput("column6_head"),
+      #                    0, 40, c(0,40))
+      # )
     ),
     DT::dataTableOutput("table")
   )

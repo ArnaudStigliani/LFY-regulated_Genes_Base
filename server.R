@@ -14,14 +14,13 @@ shinyServer(function(input, output) {
   datasetInputModif <- reactive({
     data<-datasetInput()
     if (input$panel1 != "All") {
-      data <- data[data$Functional.category == input$panel1,]
+      data <- data[data$Model_name == input$panel1,]
     }
-    
-    data <- data[data$D.M >= input$panel2[1],]
-    data <- data[data$D.M < input$panel2[2],]
-    
-    data <- data[data$DC.C >= input$panel3[1],]
-    data <- data[data$DC.C < input$panel3[2],]
+     data <- data[data$FC_LFY.GR_Col_GSE28062 >= input$slider[1],]
+     data <- data[data$FC_LFY.GR_Col_GSE28062 < input$slider[2],]
+    # 
+    # data <- data[data$DC.C >= input$panel3[1],]
+    # data <- data[data$DC.C < input$panel3[2],]
     
     data
   })
@@ -39,16 +38,21 @@ shinyServer(function(input, output) {
   
   ####################################
   #### collect specific headers
-  output$column4_head <- renderText({
-    names(datasetInput())[4]
+  output$column1_head <- renderText({
+    names(datasetInput())[1]
   })
   
-  output$column5_head <- renderText({
-    names(datasetInput())[5]
+  output$column8_head <- renderText({
+    names(datasetInput())[8]
   })
   
   output$column6_head <- renderText({
     names(datasetInput())[6]
   })
+  
+  output$slider <- renderUI({
+    sliderInput("slider", "FC:(LFY-GR/Col)_GSE28062", min=min(datasetInput()$FC_LFY.GR_Col_GSE28062), max=max(datasetInput()$FC_LFY.GR_Col_GSE28062), c(0,1))
+  })
+
   
 })
