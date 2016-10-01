@@ -1,6 +1,6 @@
 fileNames<-dir("data/", pattern =".csv")
 
-shinyUI(pageWithSidebar(
+shinyUI(fluidPage(
   headerPanel('CSV Filtering Tool'),
   
   sidebarPanel(
@@ -11,25 +11,15 @@ shinyUI(pageWithSidebar(
   
   mainPanel(
     fluidRow(
-      column(4,
-             selectInput("panel1",
-                         textOutput("column1_head"),
-                         c("All",
-                           "LFY-GR_vs_WT_GSE28062","Model2","Model3","Model4"	 ))
-      )
-      , column(4, uiOutput("slider") )
-      # , column(4,
-      #         sliderInput("panel2",
-      #                     textOutput("column8_head"),
-      #                     0, 50, c(0,50))
-      # )
-      #, column(4,
-      #        sliderInput("panel3",
-      #                    textOutput("column6_head"),
-      #                    0, 40, c(0,40))
-      # )
+       column(2, uiOutput("slider_FC_35LFY_Ler_GSE911") )
+      , column(2, uiOutput("slider_FC_DexCyclo_Cyclo_GSE911") )
+       , column(2, uiOutput("slider_FC_DEX_MOCK_GSE911") )
+       , column(2, uiOutput("slider_FC_LFYGR_WT_GSE28062") )
     ),
+    
+    fluidRow(
     DT::dataTableOutput("table")
-  )
+    )
+    )
   
 ))
