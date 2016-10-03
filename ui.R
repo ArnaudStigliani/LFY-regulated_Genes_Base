@@ -11,15 +11,20 @@ shinyUI(fluidPage(
   
   mainPanel(
     fluidRow(
-       column(2, uiOutput("slider_FC_35LFY_Ler_GSE911") )
-      , column(2, uiOutput("slider_FC_DexCyclo_Cyclo_GSE911") )
-       , column(2, uiOutput("slider_FC_DEX_MOCK_GSE911") )
-       , column(2, uiOutput("slider_FC_LFYGR_WT_GSE28062") )
+      column(2, uiOutput("min_FC_35LFY_Ler") ),
+      column(2, uiOutput("max_FC_35LFY_Ler") ),
+      column(2, uiOutput("min_FC_DexCyclo_Cyclo") ),
+      column(2, uiOutput("max_FC_DexCyclo_Cyclo") ),
+      column(2, uiOutput("min_FC_DEX_MOCK") ),
+      column(2, uiOutput("max_FC_DEX_MOCK") ),
+      column(2, uiOutput("min_FC_LFYGR_WT") ),
+      column(2, uiOutput("max_FC_LFYGR_WT") )
     ),
     
     fluidRow(
     DT::dataTableOutput("table")
     )
+    
     )
   
 ))
