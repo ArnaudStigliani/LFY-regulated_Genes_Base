@@ -18,7 +18,11 @@ shinyUI(fluidPage(
       column(2, uiOutput("min_FC_DEX_MOCK") ),
       column(2, uiOutput("max_FC_DEX_MOCK") ),
       column(2, uiOutput("min_FC_LFYGR_WT") ),
-      column(2, uiOutput("max_FC_LFYGR_WT") )
+      column(2, uiOutput("max_FC_LFYGR_WT") ),
+      column(2, uiOutput("min_FC_SP1_col") ),
+      column(2, uiOutput("max_FC_SP1_col") ),
+      column(2, uiOutput("min_FC_SP3_col") ),
+      column(2, uiOutput("max_FC_SP3_col") )
     ),
     
     fluidRow(
