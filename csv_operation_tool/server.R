@@ -15,7 +15,7 @@ shinyServer(function(input, output) {
     datasetInput()
   , caption = 'Table 1: This is a table listing genes regulated by LFY.',style = 'bootstrap', class = 'cell-border stripe',filter = 'top',
   extensions = 'Buttons',
-  options = list( pageLength = 20,autoWidth = TRUE,
+  options = list( pageLength = 20,lengthMenu = c(5, 10, 15, 20,100,200,500,1000,2000),autoWidth = TRUE,
     dom = 'Bfrtipl',
     buttons = 
       list('copy', 'print', list(

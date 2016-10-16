@@ -4,8 +4,7 @@ shinyUI(fluidPage(
   headerPanel('CSV Filtering Tool'),
   
   sidebarPanel(
-    selectInput("dataset", "Choose a dataset:", 
-                fileNames )
+    selectInput("dataset", "Choose a dataset:", fileNames )
   ),
   
   mainPanel(
