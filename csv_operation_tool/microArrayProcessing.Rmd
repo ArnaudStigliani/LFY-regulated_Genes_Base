@@ -1,0 +1,144 @@
+---
+title: "Micro Array data Processing"
+author: "Adrien Bessy"
+output:
+  rmarkdown::html_document:
+  toc: true
+---
+* Here is the pipeline to go from raw data that are measured intensities and locations for an array that has been hy-
+bridized (Cel files) to differentially expressed genes (final processed data). Once you have your processed data, you can use of a tool to apply multiple filers on several variables. 
+
+* Raw data comes from two papers (Winter, 2011 and William, 2004). The data are gene expression of 9-day-old 35S::LFY-GR dexamethasone-treated seedlings compared to 9-day-old WT dexamethasone-treated seedlings, 4 replicates for each condition (Winter, 2011), and gene expression in 9 day old LEAFY-GR, 35S::LFY or Landsberg erecta seedlings treated with the steroid dexamethasone and/or the protein synthesis inhibitor cycloheximide, 1 replicate for each condition (William, 2004). In addition, we use our own data set SP1 vs Col and SP3 vs Col. 
+
+* Data coming from Affymetrix Arabidopsis ATH1 Genome Array, so adapted methods were used for these kind of arrays (affy package). All the packages used for normalization and identification of differentially expressed genes come from https://bioconductor.org that stores rather reliable packages.
+
+1. Go to https://www.ncbi.nlm.nih.gov/geo/ (a public functional genomics data repository)
+2. Type GSE28062, then GSE911 in the Search bar.
+3. Download CEL files corresponding to each one at the bottom of the pages (tick "Select All" and download).
+4. Unpack them to obtain CEL files.
+5. Put CEL files of GSE28062 in one directory, and CEL files of GSE911 in another one.
+6. Concerning GSE911, three different comparisons will be done, so you have to put 35LFY and LER in one sub-directory, Dex and Mock in another one, and DexCyclo and Cyclo in another one.
+7. Be in the directory where there are CEL files to analyze, then type within the R environment the following commands:
+
+## Dependencies
+  
+```{r chunk1, eval = FALSE}
+## try http:// if https:// URLs are not supported
+## source("https://bioconductor.org/biocLite.R")
+## browseVignettes("package_name") for package information
+## biocLite("affy") ## contains methods for Affymetrix arrays
+## biocLite("gcrma") ## gcrma adjusts for optical noise made by the scanner and non-speciﬁc binding in Aﬀymetrix array data.
+## biocLite("RankProd") ## contains the Rank Product method that is a non-parametric method for identifying differentially expressed (up- or down- regulated) genes based on the estimated percentage of false predictions (pfp).
+library(affy) 
+library(gcrma)
+library(RankProd) 
+```
+
+## If you use windows
+The best is to use RStudio software https://www.rstudio.com/.
+Think to set your working directory where you put your CEL files (Session->Set Working Directory).
+
+## Normalization
+
+```{r chunk2, eval = FALSE}
+## ReadAffy() reads all your cel files
+options(scipen = 3) ## disable scientific notation (e+)
+bm=ReadAffy()
+bm ## the body map displays the size of the array (feature number), number of samples and number of genes
+pData(bm)  ## displays the sample names
+eset<-gcrma(bm) ## gcrma adjusts for optical noise made by the scanner and non-speciﬁc binding in Aﬀymetrix array data.
+write.exprs(eset,file='gcRMA_expression_estimates.txt') ## In this file, you can see the order of your samples, which is useful for your data.cl variable
+## exprs() function extracts expression data
+data<-exprs(eset)
+```
+
+proper from each analysis:
+```{r chunk3, eval = FALSE}
+## For data.cl variable, look at the 'gcRMA_expression_estimates.txt' file to observe the order of each sample. The control has to be zero.
+data.cl<-c(0,0,0,0,1,1,1,1) ## for GSE28062
+data.cl<-c(0,1,0,1)
+data.cl<-c(1,1,1,0,0,0) ## for sp1/Col and sp3/Col
+```
+
+## Identification of differentially expressed genes
+
+```{r chunk4, eval = FALSE}
+data.gnames<-rownames(data)
+RP.out<-RP(data,data.cl,gene.names=data.gnames,rand=123) ## we chose to set rand to 123 to make this pipeline reproducible.
+result_0.1<-topGene(RP.out,num.gene=22810,gene.names=data.gnames) ## create a table with FC, pfp and P.value for all the genes (22810 genes here)
+data1<-result_0.1$Table1
+data1<-data1[,-2] ## suppress the RP/Rsum column
+data1=cbind(rownames(data1),data1)
+```
+
+Proper from each analysis:
+```{r chunk5, eval = FALSE}
+colnames(data1)[c(1,4,5)]=c('ath1_probe','pfp_LFYGR_WT_down','P.value_LFYGR_WT_down')
+data2<-result_0.1$Table2
+data2<-data2[,c(1,4,5)]
+data2=cbind(rownames(data2),data2)
+colnames(data2)[c(1,3,4)]=c('ath1_probe','pfp_LFYGR_WT_up','P.value_LFYGR_WT_up')
+tables<-merge(data1, data2, by=c('ath1_probe','gene.index'),all=T)
+colnames(tables)[c(2,3)]=c('probe_target_number','FC_LFYGR_WT_GSE28062')
+write.table(tables,file='LFYgr_vs_WT_GSE28062.csv',sep=';',row.names=F)
+```
+
+Repeat all these steps for each comparison (here, four comparisons), so quit R (with q() command) and go to the relevant directory.
+
+8. When you did all your comparisons, quit R, put all your results in a directory.
+9. Go into this directory
+10. Then, write the following commands to merge your csv files.
+
+## Merging of your csv files
+
+```{r chunk6, eval = FALSE}
+multmerge = function(){
+filenames=list.files(full.names=TRUE)
+datalist = lapply(filenames, function(x){read.csv(file=x,, header = TRUE, sep = ";", quote = '"')})
+Reduce(function(x,y) {merge(x,y, by=c('ath1_probe','probe_target_number'),all=T)}, datalist)
+}
+all<-multmerge()
+write.table(all,file="all.csv",sep=";",row.names=F)
+```
+
+Then, you get one csv file that contains ath1 probe, probe target number, fold change (FC), pfp and Pvalue for all your samples.
+
+## Short description and Locus.Identifier
+
+11. Copy the ah1_probe column and paste it in the entry text in https://www.arabidopsis.org/tools/bulk/microarray/index.jsp.
+12. Select all, then save it in a csv format.
+13. Replace the 'Array Element' header by 'ath1_probe' header.
+14. In the terminal, be in the same directory that your both files then type the following commands:
+
+```{r chunk7, eval = FALSE}
+mydata1 = read.csv("all.csv", header = TRUE, sep = ";", quote = '"')
+mydata2 = read.csv("short_description.csv", header = TRUE, sep = "\t", quote = '"')
+mydata2<-mydata2[,c(1,2,3)]
+myfulldata<-merge(mydata1, mydata2, by=c('ath1_probe'),all=T)
+write.table(myfulldata,file="all_and_SD.csv",sep=";",row.names=F)
+```
+
+Here is a way to do multiple filters on several variables:
+
+## Multiple filtering with 'csv operation tool'
+
+1. Download the 'csv operation tool' here: https://github.com/adrbessy/csv_operation_tool.
+2. Put your csv file in the 'data' directory of this tool.
+3. Type the following commands:
+
+```{r chunk8, eval = FALSE}
+install.packages('shiny')
+library(shiny)
+runApp('C:Users/.../csv_operation_tool')
+```
+
+4. You can do multiple filtering, then saving your resulting table.
+
+## Session information
+
+It is very useful to record the session information when performing analyses.
+
+```{r session_info}
+sessionInfo()
+devtools::session_info()
+```
