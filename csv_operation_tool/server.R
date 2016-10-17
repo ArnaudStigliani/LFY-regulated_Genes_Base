@@ -1,7 +1,5 @@
 shinyServer(function(input, output) {
   
-  library(dplyr)
-  
   ####################################
   #### when the user selects a dataset in the data directory (input$dataset)
   datasetInput <- reactive({

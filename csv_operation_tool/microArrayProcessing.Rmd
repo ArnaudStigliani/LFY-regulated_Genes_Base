@@ -8,27 +8,27 @@ output:
 * Here is the pipeline to go from raw data that are measured intensities and locations for an array that has been hy-
 bridized (Cel files) to differentially expressed genes (final processed data). Once you have your processed data, you can use of a tool to apply multiple filers on several variables. 
 
-* Raw data comes from two papers (Winter, 2011 and William, 2004). The data are gene expression of 9-day-old 35S::LFY-GR dexamethasone-treated seedlings compared to 9-day-old WT dexamethasone-treated seedlings, 4 replicates for each condition (Winter, 2011), and gene expression in 9 day old LEAFY-GR, 35S::LFY or Landsberg erecta seedlings treated with the steroid dexamethasone and/or the protein synthesis inhibitor cycloheximide, 1 replicate for each condition (William, 2004). In addition, we use our own data set SP1 vs Col and SP3 vs Col. 
+* Raw data comes from two papers (Winter, 2011 and William, 2004). The data are gene expression of 9-day-old 35S::LFY-GR dexamethasone-treated seedlings compared to 9-day-old WT dexamethasone-treated seedlings, 4 replicates for each condition (Winter, 2011), and gene expression in 9 day old LEAFY-GR, 35S::LFY or Landsberg erecta seedlings treated with the steroid dexamethasone and/or the protein synthesis inhibitor cycloheximide, 1 replicate for each condition (William, 2004). In addition, we use our own data set SP1 vs Col and SP3 vs Col. And gene expression from Wild type and mutanat Arabiposis plants grown in short days (9L:15D) for 30 days at 21°C, then shifted to long days (16L:8D). This last data are already normalized, so we have to skip the Normalization step.
 
 * Data coming from Affymetrix Arabidopsis ATH1 Genome Array, so adapted methods were used for these kind of arrays (affy package). All the packages used for normalization and identification of differentially expressed genes come from https://bioconductor.org that stores rather reliable packages.
 
 1. Go to https://www.ncbi.nlm.nih.gov/geo/ (a public functional genomics data repository)
-2. Type GSE28062, then GSE911 in the Search bar.
-3. Download CEL files corresponding to each one at the bottom of the pages (tick "Select All" and download).
+2. Type GSE28062, then GSE911, then GSE576 in the Search bar.
+3. Download CEL files corresponding to each one at the bottom of the pages (tick "Select All" and download). For GSE976, download the txt format, then select the relevant data inside.
 4. Unpack them to obtain CEL files.
 5. Put CEL files of GSE28062 in one directory, and CEL files of GSE911 in another one.
-6. Concerning GSE911, three different comparisons will be done, so you have to put 35LFY and LER in one sub-directory, Dex and Mock in another one, and DexCyclo and Cyclo in another one.
+6. Concerning GSE911, three different comparisons will be done, so you have to put 35LFY and LER in one sub-directory, Dex and Mock in another one, and DexCyclo and Cyclo in another one. Concerning GSE576, I select the id probe, GSM8829, GSM8830, GSM8837, GSM8838 columns to paste in one new file, then id probe, GSM8831, GSM8832, GSM8839, GSM8840 columns to paste in one new file, and finally, id probe, GSM8833, GSM8834, GSM8841, GSM8842 columns to paste them in one new file, then id probe, GSM8827,GSM8828, GSM8835, GSM8836 columns to paste them in a new file. Don't forget to remove the last line that is "!series_matrix_table_end".
 7. Be in the directory where there are CEL files to analyze, then type within the R environment the following commands:
 
 ## Dependencies
   
 ```{r chunk1, eval = FALSE}
 ## try http:// if https:// URLs are not supported
-## source("https://bioconductor.org/biocLite.R")
+source("https://bioconductor.org/biocLite.R")
 ## browseVignettes("package_name") for package information
-## biocLite("affy") ## contains methods for Affymetrix arrays
-## biocLite("gcrma") ## gcrma adjusts for optical noise made by the scanner and non-speciﬁc binding in Aﬀymetrix array data.
-## biocLite("RankProd") ## contains the Rank Product method that is a non-parametric method for identifying differentially expressed (up- or down- regulated) genes based on the estimated percentage of false predictions (pfp).
+biocLite("affy") ## contains methods for Affymetrix arrays
+biocLite("gcrma") ## gcrma adjusts for background intensities in Aﬀymetrix array data which include optical noise and non-speciﬁc binding.
+biocLite("RankProd") ## contains the Rank Product method that is a non-parametric method for identifying differentially expressed (up- or down- regulated) genes based on the estimated percentage of false predictions (pfp).
 library(affy) 
 library(gcrma)
 library(RankProd) 
@@ -42,27 +42,31 @@ Think to set your working directory where you put your CEL files (Session->Set W
 
 ```{r chunk2, eval = FALSE}
 ## ReadAffy() reads all your cel files
-options(scipen = 3) ## disable scientific notation (e+)
 bm=ReadAffy()
 bm ## the body map displays the size of the array (feature number), number of samples and number of genes
-pData(bm)  ## displays the sample names
-eset<-gcrma(bm) ## gcrma adjusts for optical noise made by the scanner and non-speciﬁc binding in Aﬀymetrix array data.
+eset<-gcrma(bm)
 write.exprs(eset,file='gcRMA_expression_estimates.txt') ## In this file, you can see the order of your samples, which is useful for your data.cl variable
-## exprs() function extracts expression data
-data<-exprs(eset)
-```
-
-proper from each analysis:
-```{r chunk3, eval = FALSE}
-## For data.cl variable, look at the 'gcRMA_expression_estimates.txt' file to observe the order of each sample. The control has to be zero.
-data.cl<-c(0,0,0,0,1,1,1,1) ## for GSE28062
-data.cl<-c(0,1,0,1)
-data.cl<-c(1,1,1,0,0,0) ## for sp1/Col and sp3/Col
 ```
 
 ## Identification of differentially expressed genes
-
+For GSE576:
+```{r chunk3, eval = FALSE}
+data0<-read.table('col_3DAF_vs_lfy_3DAF.txt', header = TRUE, sep = "\t", quote = '"')
+data <- data0[,-1]
+rownames(data) <- data0[,1]
+data.cl<-c(0,0,1,1)
+```
+proper from each analysis, not for GSE976:
 ```{r chunk4, eval = FALSE}
+## exprs() function extracts expression data
+data<-exprs(eset)
+## For data.cl variable, look at the 'gcRMA_expression_estimates.txt' file to observe the order of each sample. The control has to be zero.
+data.cl<-c(0,0,0,0,1,1,1,1) ## for GSE28062
+data.cl<-c(0,1,0,1) ## for GSE911
+data.cl<-c(1,1,1,0,0,0) ## for sp1/Col and sp3/Col
+```
+
+```{r chunk5, eval = FALSE}
 data.gnames<-rownames(data)
 RP.out<-RP(data,data.cl,gene.names=data.gnames,rand=123) ## we chose to set rand to 123 to make this pipeline reproducible.
 result_0.1<-topGene(RP.out,num.gene=22810,gene.names=data.gnames) ## create a table with FC, pfp and P.value for all the genes (22810 genes here)
@@ -72,7 +76,7 @@ data1=cbind(rownames(data1),data1)
 ```
 
 Proper from each analysis:
-```{r chunk5, eval = FALSE}
+```{r chunk6, eval = FALSE}
 colnames(data1)[c(1,4,5)]=c('ath1_probe','pfp_LFYGR_WT_down','P.value_LFYGR_WT_down')
 data2<-result_0.1$Table2
 data2<-data2[,c(1,4,5)]
@@ -91,7 +95,7 @@ Repeat all these steps for each comparison (here, four comparisons), so quit R (
 
 ## Merging of your csv files
 
-```{r chunk6, eval = FALSE}
+```{r chunk7, eval = FALSE}
 multmerge = function(){
 filenames=list.files(full.names=TRUE)
 datalist = lapply(filenames, function(x){read.csv(file=x,, header = TRUE, sep = ";", quote = '"')})
@@ -110,13 +114,15 @@ Then, you get one csv file that contains ath1 probe, probe target number, fold c
 13. Replace the 'Array Element' header by 'ath1_probe' header.
 14. In the terminal, be in the same directory that your both files then type the following commands:
 
-```{r chunk7, eval = FALSE}
+```{r chunk8, eval = FALSE}
 mydata1 = read.csv("all.csv", header = TRUE, sep = ";", quote = '"')
 mydata2 = read.csv("short_description.csv", header = TRUE, sep = "\t", quote = '"')
 mydata2<-mydata2[,c(1,2,3)]
 myfulldata<-merge(mydata1, mydata2, by=c('ath1_probe'),all=T)
 write.table(myfulldata,file="all_and_SD.csv",sep=";",row.names=F)
 ```
+
+Before using csv operation tool, check, by using excel, if you have comma or scientific notation (E+) that is not compatible with csv operation tool. So you can replace scientific notation by standard notations, then comma by dot. 
 
 Here is a way to do multiple filters on several variables:
 
@@ -126,13 +132,15 @@ Here is a way to do multiple filters on several variables:
 2. Put your csv file in the 'data' directory of this tool.
 3. Type the following commands:
 
-```{r chunk8, eval = FALSE}
+```{r chunk9, eval = FALSE}
 install.packages('shiny')
 library(shiny)
 runApp('C:Users/.../csv_operation_tool')
 ```
 
-4. You can do multiple filtering, then saving your resulting table.
+4. Launch the app on your web browser
+
+5. You can do multiple filtering, then saving your resulting table by using the easy copy/paste function or PDF function.
 
 ## Session information
 
