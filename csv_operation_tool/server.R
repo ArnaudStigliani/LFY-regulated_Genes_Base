@@ -16,11 +16,8 @@ shinyServer(function(input, output) {
   options = list( pageLength = 20,lengthMenu = c(5, 10, 15, 20,100,200,500,1000,2000),autoWidth = TRUE,
     dom = 'Bfrtipl',
     buttons = 
-      list('copy', 'print', list(
-        extend = 'collection',
-        buttons = c('csv', 'excel', 'pdf'),
-        text = 'Download'
-      ))
+      list('copy'
+      )
     
   )))
 

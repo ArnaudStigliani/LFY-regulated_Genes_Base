@@ -1,7 +1,7 @@
 fileNames<-dir("data/", pattern =".csv")
 
 shinyUI(fluidPage(
-  headerPanel('CSV Filtering Tool'),
+  headerPanel('LFY-regulated Genes Base'),
   
   sidebarPanel(
     selectInput("dataset", "Choose a dataset:", fileNames )
