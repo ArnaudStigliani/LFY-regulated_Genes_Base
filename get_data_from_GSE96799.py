@@ -1,0 +1,3 @@
+import csv
+c_maxes = df.groupby(['Locus.identifier']).PValueLogRatio_Rep_1_2h.transform(max)
+df = df[df.PValueLogRatio_Rep_1_2h == c_maxes]
