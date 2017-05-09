@@ -4,7 +4,7 @@ shinyServer(function(input, output) {
   #### when the user selects a dataset in the data directory (input$dataset)
   datasetInput <- reactive({
     inFile2 <- paste("data/", input$dataset, sep = "")
-    read.csv(inFile2, header = TRUE, sep = ";", quote = '"')
+    read.csv(inFile2, header = TRUE, sep = "\t", quote = '"')
   })
   
   ####################################
